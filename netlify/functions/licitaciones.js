@@ -4,23 +4,30 @@ exports.handler = async function () {
   const url = `https://api.mercadopublico.cl/servicios/v1/publico/licitaciones.json?estado=activas&ticket=${API_KEY}`;
 
   const keywords = [
-    "pasto sintético",
-    "pasto sintetico",
-    "césped sintético",
-    "cesped sintetico",
+    "pasto",
+    "sintético",
+    "sintetico",
+    "césped",
+    "cesped",
     "cancha",
     "canchas",
     "multicancha",
     "multicanchas",
-    "pista atlética",
-    "pista atletica",
-    "recinto deportivo",
-    "recintos deportivos",
-    "complejo deportivo",
-    "complejos deportivos",
+    "pista",
+    "atlética",
+    "atletica",
+    "deportivo",
+    "deportiva",
+    "deportivos",
+    "deportivas",
+    "recinto",
+    "estadio",
     "cierre perimetral",
-    "iluminación deportiva",
-    "iluminacion deportiva"
+    "iluminación",
+    "iluminacion",
+    "espacio recreativo",
+    "superficie deportiva",
+    "infraestructura deportiva"
   ];
 
   try {
