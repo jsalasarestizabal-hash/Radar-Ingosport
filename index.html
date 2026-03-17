@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radar Ingosport</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+  <div id="app"></div>
+
+  <script>
+    const creds = { user: 'Ingosport', pass: 'Ingosport1234' };
+    const licitaciones = [
+      { id:'2767-14-LQ26', title:'Mejoramiento cancha de fútbol con pasto sintético y cierre perimetral', buyer:'Municipalidad de Maipú', region:'Región Metropolitana', amount:'$148.000.000', close:'20 Mar 2026 · 15:00', score:91, status:'Alta prioridad', category:'Pasto sintético', risk:'Medio', summary:'Proyecto altamente alineado con Ingosport. Incluye suministro e instalación de césped sintético, demarcaciones, mejoramiento de base y cierre perimetral.', requirements:['Experiencia en recintos deportivos','Garantía de seriedad','Carta Gantt','Equipo profesional mínimo'], nextAction:'Revisar bases administrativas y validar experiencia exigida.' },
+      { id:'1023-55-LR26', title:'Reposición de multicancha escolar con iluminación deportiva', buyer:'SLEP Valparaíso', region:'Valparaíso', amount:'$84.500.000', close:'22 Mar 2026 · 17:30', score:78, status:'En revisión', category:'Multicancha', risk:'Bajo', summary:'Oportunidad de ticket medio con buena entrada comercial. Contempla demolición parcial, reposición de superficie e instalación de luminarias.', requirements:['Visita a terreno','Experiencia general en construcción','Anexos económicos'], nextAction:'Confirmar visita obligatoria y revisar alcance eléctrico.' },
+      { id:'4112-8-LP26', title:'Conservación de recinto deportivo municipal y zonas de seguridad', buyer:'Municipalidad de Angol', region:'La Araucanía', amount:'$231.000.000', close:'25 Mar 2026 · 12:00', score:88, status:'A analizar', category:'Recinto deportivo', risk:'Medio', summary:'Licitación atractiva por monto y ajuste técnico. Puede requerir consorcio o subcontratos por partidas complementarias.', requirements:['Experiencia específica','Estados financieros','Programa de trabajo','Prevención de riesgos'], nextAction:'Evaluar capacidad operativa y financiera antes de ofertar.' },
+      { id:'5520-19-LE26', title:'Mantención correctiva de cancha sintética y reposición de relleno', buyer:'Municipalidad de Puente Alto', region:'Región Metropolitana', amount:'$28.900.000', close:'19 Mar 2026 · 11:00', score:72, status:'En revisión', category:'Mantención', risk:'Bajo', summary:'Oportunidad rápida para entrada comercial y relacionamiento con municipio recurrente.', requirements:['Ficha técnica de materiales','Plazo de ejecución','Anexos simples'], nextAction:'Preparar oferta rápida y revisar especificación del relleno.' },
+      { id:'8801-77-LQ26', title:'Construcción de pista atlética y mejoramiento integral de estadio', buyer:'Gobierno Regional de Los Ríos', region:'Los Ríos', amount:'$1.250.000.000', close:'29 Mar 2026 · 16:00', score:95, status:'Alta prioridad', category:'Pista atlética', risk:'Alto', summary:'Proceso estratégico de alto valor. Muy buen ajuste comercial, pero exige respaldo técnico, capacidad financiera y propuesta robusta.', requirements:['Experiencia en pistas atléticas','Boleta de garantía','Metodología técnica','Profesionales clave'], nextAction:'Activar comité de propuesta y definir estrategia de asociación.' },
+      { id:'3009-43-LE26', title:'Habilitación de espacio recreativo con césped sintético y juegos', buyer:'Municipalidad de Quilicura', region:'Región Metropolitana', amount:'$56.900.000', close:'21 Mar 2026 · 10:00', score:67, status:'A analizar', category:'Espacio recreativo', risk:'Medio', summary:'No es 100% core, pero puede abrir puerta con mandante activo.', requirements:['Catálogo técnico','Plazo','Oferta económica'], nextAction:'Definir si entra dentro del foco comercial 2026.' }
+    ];
+
+    let state = { loggedIn:false, screen:'dashboard', selected: licitaciones[0], search:'', region:'Todas', priority:'Todas' };
+
+    function badgeTone(status){
+      if(status==='Alta prioridad') return 'bg-red-100 text-red-700 border-red-200';
+      if(status==='En revisión') return 'bg-amber-100 text-amber-700 border-amber-200';
+      if(status==='A analizar') return 'bg-blue-100 text-blue-700 border-blue-200';
+      return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+
+    function filtered(){
+      return licitaciones.filter(item => {
+        const txt = `${item.title} ${item.buyer} ${item.region} ${item.category}`.toLowerCase();
+        const ok1 = !state.search || txt.includes(state.search.toLowerCase());
+        const ok2 = state.region==='Todas' || item.region===state.region;
+        const ok3 = state.priority==='Todas' || item.status===state.priority;
+        return ok1 && ok2 && ok3;
+      });
+    }
+
+    function render(){
+      const app = document.getElementById('app');
+      if(!state.loggedIn){
+        app.innerHTML = `
+        <div class="min-h-screen bg-slate-950 flex items-center justify-center p-6">
+          <div class="grid w-full max-w-6xl overflow-hidden rounded-[32px] border border-slate-800 bg-slate-900 shadow-2xl lg:grid-cols-2">
+            <div class="hidden lg:flex flex-col justify-between bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 p-10 text-white">
+              <div>
+                <p class="text-sm uppercase tracking-[0.3em] text-emerald-300">Radar Ingosport</p>
+                <h1 class="mt-4 text-5xl font-bold leading-tight">Inteligencia comercial para Mercado Público</h1>
+                <p class="mt-5 max-w-xl text-slate-200">Simulación navegable lista para reunión gerencial. Incluye monitoreo, priorización, alertas, pipeline y análisis IA.</p>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="rounded-3xl border border-white/10 bg-white/5 p-5"><div class="text-sm text-slate-300">Monitoreo activo</div><div class="mt-2 text-3xl font-bold">24</div></div>
+                <div class="rounded-3xl border border-white/10 bg-white/5 p-5"><div class="text-sm text-slate-300">Alta prioridad</div><div class="mt-2 text-3xl font-bold">2</div></div>
+              </div>
+            </div>
+            <div class="bg-white p-8 md:p-10">
+              <div class="mx-auto max-w-md">
+                <p class="text-sm uppercase tracking-[0.28em] text-slate-500">Ingreso seguro</p>
+                <h2 class="mt-3 text-3xl font-bold text-slate-900">Acceso a la plataforma</h2>
+                <p class="mt-3 text-sm text-slate-600">Esta demo ya viene preparada para navegar y mostrar el flujo completo de Radar Ingosport.</p>
+                <form id="loginForm" class="mt-8 space-y-5">
+                  <div><label class="mb-2 block text-sm font-medium text-slate-700">Usuario</label><input id="user" value="Ingosport" class="w-full rounded-2xl border border-slate-300 px-4 py-3"></div>
+                  <div><label class="mb-2 block text-sm font-medium text-slate-700">Clave</label><input id="pass" type="password" value="Ingosport1234" class="w-full rounded-2xl border border-slate-300 px-4 py-3"></div>
+                  <div id="loginError" class="hidden rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">Usuario o clave incorrecta</div>
+                  <button type="submit" class="w-full rounded-2xl bg-slate-900 px-4 py-3 font-semibold text-white">Ingresar a Radar Ingosport</button>
+                </form>
+                <div class="mt-6 rounded-2xl border bg-slate-50 p-4 text-sm text-slate-600">
+                  <div><span class="font-semibold">Usuario:</span> Ingosport</div>
+                  <div><span class="font-semibold">Clave:</span> Ingosport1234</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+        document.getElementById('loginForm').onsubmit = function(e){
+          e.preventDefault();
+          const u = document.getElementById('user').value;
+          const p = document.getElementById('pass').value;
+          if(u===creds.user && p===creds.pass){ state.loggedIn = true; render(); }
+          else document.getElementById('loginError').classList.remove('hidden');
+        };
+        return;
+      }
+
+      const cards = filtered().map(item => `
+        <button data-id="${item.id}" class="lic-card w-full rounded-2xl border p-4 text-left transition hover:shadow-md ${state.selected.id===item.id ? 'border-slate-900 bg-slate-50' : 'bg-white'}">
+          <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div>
+              <div class="text-xs font-semibold text-slate-500">${item.id}</div>
+              <div class="mt-1 text-lg font-semibold">${item.title}</div>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <span class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold bg-slate-100 text-slate-700 border-slate-200">${item.category}</span>
+                <span class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${badgeTone(item.status)}">${item.status}</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-slate-500">Monto</div><div class="text-lg font-bold">${item.amount}</div>
+              <div class="mt-2 text-xs text-slate-500">Score IA</div><div class="text-2xl font-bold">${item.score}</div>
+            </div>
+          </div>
+          <div class="mt-3 grid gap-2 text-sm text-slate-600 md:grid-cols-3">
+            <div>${item.buyer}</div><div>${item.region}</div><div>Cierre: ${item.close}</div>
+          </div>
+        </button>`).join('');
+
+      const selected = state.selected;
+      const screenTitle = {
+        dashboard:'Dashboard ejecutivo', oportunidades:'Monitor de oportunidades', alertas:'Centro de alertas', ia:'Radar IA', pipeline:'Pipeline comercial', reportes:'Reportes gerenciales'
+      }[state.screen];
+
+      app.innerHTML = `
+      <div class="min-h-screen bg-slate-100 text-slate-900">
+        <div class="flex min-h-screen">
+          <aside class="hidden w-80 flex-col border-r bg-slate-950 text-white lg:flex">
+            <div class="border-b border-white/10 p-6">
+              <p class="text-xs uppercase tracking-[0.28em] text-emerald-300">Radar Ingosport</p>
+              <h1 class="mt-3 text-2xl font-bold">Panel comercial</h1>
+              <p class="mt-2 text-sm text-slate-300">Simulación integral para reunión y demostración interna.</p>
+            </div>
+            <nav class="flex-1 space-y-2 p-4">
+              ${['dashboard','oportunidades','alertas','ia','pipeline','reportes'].map(k => `<button data-screen="${k}" class="nav-btn flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition ${state.screen===k ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-white/5 hover:text-white'}">${k.charAt(0).toUpperCase()+k.slice(1)}</button>`).join('')}
+            </nav>
+            <div class="border-t border-white/10 p-4"><button id="logoutBtn" class="w-full rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-300 hover:bg-white/5">Cerrar sesión</button></div>
+          </aside>
+          <main class="flex-1">
+            <header class="sticky top-0 z-20 border-b bg-white/90 backdrop-blur">
+              <div class="flex flex-col gap-4 px-4 py-4 md:px-8 lg:flex-row lg:items-center lg:justify-between">
+                <div><h2 class="text-2xl font-bold">${screenTitle}</h2><p class="text-sm text-slate-500">Vista navegable para presentar el funcionamiento integral de la plataforma.</p></div>
+                <div class="flex flex-wrap gap-2">
+                  <span class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold bg-emerald-100 text-emerald-700 border-emerald-200">Demo lista para reunión</span>
+                  <span class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold bg-blue-100 text-blue-700 border-blue-200">PC + móvil</span>
+                </div>
+              </div>
+            </header>
+            <div class="space-y-6 p-4 md:p-8">
+              ${state.screen==='dashboard' ? `
+                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  <div class="rounded-3xl border bg-white p-5 shadow-sm"><div class="text-sm text-slate-500">Oportunidades activas</div><div class="mt-2 text-3xl font-bold">24</div><div class="mt-2 text-xs text-slate-500">Procesos deportivos y asociados</div></div>
+                  <div class="rounded-3xl border bg-white p-5 shadow-sm"><div class="text-sm text-slate-500">Cierres próximos</div><div class="mt-2 text-3xl font-bold">4</div><div class="mt-2 text-xs text-slate-500">Dentro de los próximos días</div></div>
+                  <div class="rounded-3xl border bg-white p-5 shadow-sm"><div class="text-sm text-slate-500">Alta prioridad</div><div class="mt-2 text-3xl font-bold">2</div><div class="mt-2 text-xs text-slate-500">Score IA sobre 90 puntos</div></div>
+                  <div class="rounded-3xl border bg-white p-5 shadow-sm"><div class="text-sm text-slate-500">Monto monitoreado</div><div class="mt-2 text-3xl font-bold">$1.799 MM</div><div class="mt-2 text-xs text-slate-500">Universo actual de la simulación</div></div>
+                </div>
+                <div class="grid gap-6 xl:grid-cols-3">
+                  <div class="xl:col-span-2 rounded-3xl border bg-white p-6 shadow-sm">
+                    <h3 class="text-xl font-semibold">Prioridad comercial sugerida</h3>
+                    <div class="mt-5 space-y-4">${licitaciones.slice(0,3).map(i => `<button data-go-op="${i.id}" class="go-op w-full rounded-2xl border bg-slate-50 p-4 text-left hover:shadow-md"><div class="text-xs font-semibold text-slate-500">${i.id}</div><div class="mt-1 text-lg font-semibold">${i.title}</div><div class="mt-2 text-sm text-slate-600">${i.buyer} · ${i.region} · Score ${i.score}</div></button>`).join('')}</div>
+                  </div>
+                  <div class="rounded-3xl border bg-white p-6 shadow-sm"><h3 class="text-xl font-semibold">Resumen IA</h3><div class="mt-4 rounded-2xl bg-slate-900 p-5 text-white"><p class="text-sm text-slate-200">Concentrar el esfuerzo comercial en pista atlética Los Ríos y cancha sintética Maipú. Ambas combinan alto ticket o alta probabilidad comercial con buen fit técnico.</p></div></div>
+                </div>` : ''}
+
+              ${state.screen==='oportunidades' ? `
+                <div class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+                  <div class="rounded-3xl border bg-white p-6 shadow-sm">
+                    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                      <div><h3 class="text-xl font-semibold">Licitaciones monitoreadas</h3><p class="mt-1 text-sm text-slate-500">Buscador, filtros y detalle navegable para la demostración comercial.</p></div>
+                      <div class="flex flex-wrap gap-2">
+                        <input id="searchInput" value="${state.search}" placeholder="Buscar..." class="rounded-2xl border px-4 py-2.5">
+                        <select id="regionSelect" class="rounded-2xl border px-4 py-2.5"><option ${state.region==='Todas'?'selected':''}>Todas</option><option ${state.region==='Región Metropolitana'?'selected':''}>Región Metropolitana</option><option ${state.region==='Valparaíso'?'selected':''}>Valparaíso</option><option ${state.region==='La Araucanía'?'selected':''}>La Araucanía</option><option ${state.region==='Los Ríos'?'selected':''}>Los Ríos</option></select>
+                        <select id="prioritySelect" class="rounded-2xl border px-4 py-2.5"><option ${state.priority==='Todas'?'selected':''}>Todas</option><option ${state.priority==='Alta prioridad'?'selected':''}>Alta prioridad</option><option ${state.priority==='En revisión'?'selected':''}>En revisión</option><option ${state.priority==='A analizar'?'selected':''}>A analizar</option></select>
+                      </div>
+                    </div>
+                    <div class="mt-5 space-y-4">${cards}</div>
+                  </div>
+                  <div class="rounded-3xl border bg-white p-6 shadow-sm">
+                    <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Detalle ejecutivo</div>
+                    <h3 class="mt-2 text-xl font-semibold">${selected.title}</h3>
+                    <div class="mt-4 space-y-3 text-sm">
+                      <div class="rounded-2xl border bg-slate-50 p-4"><span class="font-semibold">Código:</span> ${selected.id}</div>
+                      <div class="rounded-2xl border bg-slate-50 p-4"><span class="font-semibold">Mandante:</span> ${selected.buyer}</div>
+                      <div class="rounded-2xl border bg-slate-50 p-4"><span class="font-semibold">Monto:</span> ${selected.amount}</div>
+                      <div class="rounded-2xl border bg-slate-50 p-4"><span class="font-semibold">Cierre:</span> ${selected.close}</div>
+                      <div class="rounded-2xl border bg-slate-50 p-4"><span class="font-semibold">Riesgo:</span> ${selected.risk}</div>
+                    </div>
+                    <div class="mt-5"><div class="text-sm font-semibold text-slate-700">Resumen automático</div><p class="mt-2 rounded-2xl bg-slate-900 p-4 text-sm leading-6 text-slate-100">${selected.summary}</p></div>
+                    <div class="mt-5"><div class="text-sm font-semibold text-slate-700">Requisitos críticos</div><div class="mt-3 space-y-2">${selected.requirements.map(r=>`<div class="rounded-xl border bg-slate-50 px-3 py-2 text-sm">${r}</div>`).join('')}</div></div>
+                    <div class="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4"><div class="text-sm font-semibold text-amber-700">Acción sugerida</div><p class="mt-2 text-sm text-amber-800">${selected.nextAction}</p></div>
+                  </div>
+                </div>` : ''}
+
+              ${state.screen==='alertas' ? `<div class="grid gap-6 lg:grid-cols-2"><div class="rounded-3xl border bg-white p-6 shadow-sm"><h3 class="text-xl font-semibold">Alertas activas</h3><div class="mt-5 space-y-4"><div class="rounded-2xl border bg-slate-50 p-4">Nueva licitación de pista atlética en Los Ríos.</div><div class="rounded-2xl border bg-slate-50 p-4">Puente Alto cierra en menos de 24 horas.</div><div class="rounded-2xl border bg-slate-50 p-4">Maipú exige garantía de seriedad y experiencia comprobable.</div></div></div><div class="rounded-3xl border bg-white p-6 shadow-sm"><h3 class="text-xl font-semibold">Reglas de monitoreo</h3><div class="mt-5 space-y-3 text-sm"><div class="rounded-2xl border bg-slate-50 p-4">Palabras clave activas: pasto sintético, multicancha, pista atlética, recinto deportivo, iluminación, cierre perimetral.</div><div class="rounded-2xl border bg-slate-50 p-4">Alertas de cierre: 72h, 48h y 24h.</div></div></div></div>` : ''}
+              ${state.screen==='ia' ? `<div class="grid gap-6 xl:grid-cols-3"><div class="xl:col-span-2 rounded-3xl border bg-white p-6 shadow-sm"><h3 class="text-xl font-semibold">Motor de análisis IA</h3><div class="mt-5 grid gap-4 md:grid-cols-2"><div class="rounded-2xl bg-slate-900 p-5 text-white"><div class="text-sm text-slate-300">Mejor oportunidad hoy</div><div class="mt-2 text-2xl font-bold">Los Ríos · Pista atlética</div><div class="mt-2 text-sm text-slate-200">Score 95 · Alto potencial estratégico</div></div><div class="rounded-2xl border bg-slate-50 p-5"><div class="text-sm text-slate-500">Recomendación comercial</div><div class="mt-2 text-lg font-semibold">Entrar con comité técnico-comercial</div></div></div></div><div class="rounded-3xl border bg-white p-6 shadow-sm"><h3 class="text-xl font-semibold">Prompt ejecutivo</h3><div class="mt-4 rounded-2xl border bg-slate-50 p-4 text-sm text-slate-700">“Muéstrame licitaciones sobre 80 millones en la zona centro con alta probabilidad comercial para Ingosport.”</div></div></div>` : ''}
+              ${state.screen==='pipeline' ? `<div class="grid gap-6 xl:grid-cols-2"><div class="rounded-3xl border bg-white p-6 shadow-sm"><h3 class="text-xl font-semibold">Embudo comercial</h3><div class="mt-5 space-y-4"><div>Detectadas: 24</div><div>Filtradas por IA: 11</div><div>En decisión: 6</div><div>En preparación: 5</div><div>Ofertadas: 2</div></div></div><div class="rounded-3xl border bg-white p-6 shadow-sm"><h3 class="text-xl font-semibold">Conclusión de gerencia</h3><div class="mt-5 space-y-3 text-sm"><div class="rounded-2xl border bg-slate-50 p-4">La IA reduce el ruido y orienta el foco comercial hacia procesos con mayor retorno esperado.</div><div class="rounded-2xl border bg-slate-50 p-4">La siguiente evolución natural es conexión real con API, base histórica y reportes automáticos.</div></div></div></div>` : ''}
+              ${state.screen==='reportes' ? `<div class="grid gap-6 xl:grid-cols-3"><div class="xl:col-span-2 rounded-3xl border bg-white p-6 shadow-sm"><h3 class="text-xl font-semibold">Informe ejecutivo generado</h3><div class="mt-5 space-y-4"><div class="rounded-2xl border bg-slate-50 p-4 text-sm text-slate-700"><span class="font-semibold">Resumen:</span> Radar Ingosport monitorea actualmente 24 oportunidades, con 2 licitaciones de alta prioridad estratégica y 4 cierres próximos.</div><div class="rounded-2xl border bg-slate-50 p-4 text-sm text-slate-700"><span class="font-semibold">Top 3:</span> Los Ríos pista atlética, Maipú pasto sintético, Angol conservación de recinto deportivo.</div></div></div><div class="rounded-3xl border bg-white p-6 shadow-sm"><h3 class="text-xl font-semibold">Acciones</h3><div class="mt-5 space-y-3"><button class="w-full rounded-2xl bg-slate-900 px-4 py-3 font-semibold text-white">Exportar PDF</button><button class="w-full rounded-2xl border px-4 py-3 font-semibold text-slate-700">Compartir con gerencia</button></div></div></div>` : ''}
+            </div>
+          </main>
+        </div>
+      </div>`;
+
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.onclick = () => { state.screen = btn.dataset.screen; render(); });
+      document.getElementById('logoutBtn').onclick = () => { state.loggedIn = false; render(); };
+      document.querySelectorAll('.lic-card').forEach(btn => btn.onclick = () => { state.selected = licitaciones.find(x => x.id === btn.dataset.id); render(); });
+      document.querySelectorAll('.go-op').forEach(btn => btn.onclick = () => { state.selected = licitaciones.find(x => x.id === btn.dataset.goOp); state.screen='oportunidades'; render(); });
+      const si = document.getElementById('searchInput'); if(si) si.oninput = e => { state.search = e.target.value; render(); };
+      const rs = document.getElementById('regionSelect'); if(rs) rs.onchange = e => { state.region = e.target.value; render(); };
+      const ps = document.getElementById('prioritySelect'); if(ps) ps.onchange = e => { state.priority = e.target.value; render(); };
+    }
+
+    render();
+  </script>
+</body>
+</html>
