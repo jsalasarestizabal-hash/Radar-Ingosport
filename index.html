@@ -203,5 +203,54 @@
 
     render();
   </script>
+  <script>
+async function mostrarLicitacionesReales() {
+  try {
+    const res = await fetch('/.netlify/functions/licitaciones');
+    const data = await res.json();
+
+    const contenedor = document.createElement('div');
+    contenedor.style.maxWidth = '1200px';
+    contenedor.style.margin = '40px auto';
+    contenedor.style.padding = '24px';
+    contenedor.style.background = 'white';
+    contenedor.style.borderRadius = '20px';
+    contenedor.style.boxShadow = '0 10px 30px rgba(0,0,0,0.08)';
+    contenedor.innerHTML = `
+      <h2 style="font-size:28px; margin-bottom:10px;">Licitaciones reales de Mercado Público</h2>
+      <p style="margin-bottom:20px; color:#475569;">Se muestran las primeras 10 licitaciones recibidas en tiempo real.</p>
+      <div id="lista-licitaciones"></div>
+    `;
+
+    document.body.appendChild(contenedor);
+
+    const lista = contenedor.querySelector('#lista-licitaciones');
+
+    const primeras = Array.isArray(data) ? data.slice(0, 10) : [];
+
+    primeras.forEach(item => {
+      const card = document.createElement('div');
+      card.style.border = '1px solid #e2e8f0';
+      card.style.borderRadius = '14px';
+      card.style.padding = '16px';
+      card.style.marginBottom = '12px';
+      card.style.background = '#f8fafc';
+
+      card.innerHTML = `
+        <div style="font-size:12px; color:#64748b; margin-bottom:6px;">${item.CodigoExterno || 'Sin código'}</div>
+        <div style="font-size:18px; font-weight:700; color:#0f172a; margin-bottom:8px;">${item.Nombre || 'Sin nombre'}</div>
+        <div style="font-size:14px; color:#334155;">Estado: ${item.CodigoEstado ?? 'N/D'}</div>
+        <div style="font-size:14px; color:#334155;">Cierre: ${item.FechaCierre || 'N/D'}</div>
+      `;
+
+      lista.appendChild(card);
+    });
+  } catch (error) {
+    console.error('Error cargando licitaciones reales', error);
+  }
+}
+
+mostrarLicitacionesReales();
+</script>
 </body>
 </html>
